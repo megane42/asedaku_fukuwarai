@@ -42,6 +42,7 @@ window.onload = function() {
 
     socket.on('part_change', function(data){
         parts[data.target].set(data.params);
+        parts[data.target].setCoords();
         canvas.renderAll();
     });
 };
