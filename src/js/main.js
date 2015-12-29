@@ -2,44 +2,46 @@ window.onload = function() {
     var canvas = new fabric.Canvas('canvas');
     var socket = io();
 
-    var defaultPositions = {
-        'base':   { x:0,   y:0 },
-        'nose':   { x:165, y:175 },
-        'mouth':  { x:160, y:255 },
-        'eye_l':  { x:195, y:115 },
-        'eye_r':  { x:123, y:125 },
-        'brow_l': { x:195, y:85 },
-        'brow_r': { x:123, y:95 },
-    };
-
+    var partsList = ['base', 'nose', 'mouth', 'eye_l', 'eye_r', 'brow_l', 'brow_r'];
     var parts = {};
 
-    for (var name in defaultPositions) {
+    partsList.forEach(function(name) {
         var opt = {};
         if (name == 'base') {
             Object.assign(opt, {
-                lockRotation: true,
-                lockMovementX: true,
-                lockMovementY: true,
-                lockScalingX: true,
-                lockScalingY: true
+                lockRotation  : true,
+                lockMovementX : true,
+                lockMovementY : true,
+                lockScalingX  : true,
+                lockScalingY  : true
             });
         }
 
-        // let を使って img をブロックスコープにしないと、処理前に次のループに進んで img が変更されてシマウマ
+        // let を使って変数をブロックスコープにしないと、処理前に次のループに進んで内容が上書きされてシマウマ
         let img = new fabric.Image(document.getElementById(name), opt);
 
         ['moving', 'scaling', 'rotating'].forEach(function(event) {
             img.on(event, function() {
-                socket.emit('part_change', canvas.toJSON());
+                socket.emit('part_change', {
+                    target: name,
+                    params: {
+                        top    : img.getTop(),
+                        left   : img.getLeft(),
+                        angle  : img.getAngle(),
+                        scaleX : img.getScaleX(),
+                        scaleY : img.getScaleY()
+                    }
+                });
             });
         });
 
         parts[name] = img;
         canvas.add(img);
-    }
+        socket.emit('part_loaded', name);
+    });
 
     socket.on('part_change', function(data){
-        canvas.loadFromJSON(data, canvas.renderAll.bind(canvas));
+        parts[data.target].set(data.params);
+        canvas.renderAll();
     });
 };
