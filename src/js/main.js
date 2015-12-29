@@ -13,25 +13,27 @@ window.onload = function() {
 
     var parts = {};
 
-    for (var key in defaultPositions) {
-        // let を使わないと、例えば base のロードが終わる前にループが nose に移って name が 'nose' になってしまう
-        let name = key;
-        fabric.Image.fromURL('img/' + name + '.png', function(img) {
-            img.set({ left: defaultPositions[name].x, top: defaultPositions[name].y});
-            canvas.add(img);
-            if (name == 'base') {
-                canvas.sendToBack(img);
-                img.lockRotation = true;
-                img.lockMovementX = true;
-                img.lockMovementY = true;
-                img.lockScalingX = true;
-                img.lockScalingY = true;
-            }
-            parts[name] = img;
-        });
+    for (var name in defaultPositions) {
+        var opt = {
+            left: defaultPositions[name].x,
+            top:  defaultPositions[name].y,
+        };
+        if (name == 'base') {
+            Object.assign(opt, {
+                lockRotation: true,
+                lockMovementX: true,
+                lockMovementY: true,
+                lockScalingX: true,
+                lockScalingY: true
+            });
+        }
+        var img = new fabric.Image(document.getElementById(name), opt);
+        parts[name] = img;
+        canvas.add(img);
     }
 
     var setPart = function (name, x, y) {
         parts[name].set({left: x, top: y});
+        canvas.renderAll();
     };
 };
