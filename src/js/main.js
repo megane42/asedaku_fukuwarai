@@ -1,6 +1,7 @@
 window.onload = function() {
-
     var canvas = new fabric.Canvas('canvas');
+    var socket = io();
+
     var defaultPositions = {
         'base':   { x:0,   y:0 },
         'nose':   { x:165, y:175 },
@@ -14,10 +15,7 @@ window.onload = function() {
     var parts = {};
 
     for (var name in defaultPositions) {
-        var opt = {
-            left: defaultPositions[name].x,
-            top:  defaultPositions[name].y,
-        };
+        var opt = {};
         if (name == 'base') {
             Object.assign(opt, {
                 lockRotation: true,
@@ -27,13 +25,21 @@ window.onload = function() {
                 lockScalingY: true
             });
         }
-        var img = new fabric.Image(document.getElementById(name), opt);
+
+        // let を使って img をブロックスコープにしないと、処理前に次のループに進んで img が変更されてシマウマ
+        let img = new fabric.Image(document.getElementById(name), opt);
+
+        ['moving', 'scaling', 'rotating'].forEach(function(event) {
+            img.on(event, function() {
+                socket.emit('part_change', canvas.toJSON());
+            });
+        });
+
         parts[name] = img;
         canvas.add(img);
     }
 
-    var setPart = function (name, x, y) {
-        parts[name].set({left: x, top: y});
-        canvas.renderAll();
-    };
+    socket.on('part_change', function(data){
+        canvas.loadFromJSON(data, canvas.renderAll.bind(canvas));
+    });
 };
