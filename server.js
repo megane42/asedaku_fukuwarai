@@ -39,8 +39,11 @@ io.on('connection', function(socket){
     // 新規ユーザーのロードが完了したら
     socket.on('part_loaded', function(name){
         // 現時点でのパーツの位置を新規ユーザーだけに送信
-        var data = positions.filter(function(item){ return item.target == name; })[0];
-        socket.emit('part_change', data);
+        positions.forEach(function(item, idx) {
+            if (item.target == name) {
+                socket.emit('part_change', item);
+            }
+        });
     });
 
     // 誰かがパーツを動かしたとき
@@ -62,6 +65,7 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/app/index.html');
 });
 
-app.use(express.static('app')); // app 配下の静的ファイルをホスティング
+// app 配下の静的ファイルをホスティング
+app.use(express.static('app'));
 
 http.listen(3000);
