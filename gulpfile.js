@@ -3,7 +3,6 @@ var browserify = require('browserify');
 var babelify   = require('babelify');
 var source     = require('vinyl-source-stream');
 var buffer     = require('vinyl-buffer');
-var webserver  = require('gulp-webserver');
 var uglify     = require('gulp-uglify');
 var plumber    = require('gulp-plumber');
 var concat     = require('gulp-concat');
@@ -12,8 +11,7 @@ var css_minify = require('gulp-minify-css');
 gulp.task('browserify', function() {
   browserify('./src/js/main.js', { debug: true })
     .transform(babelify)
-    .bundle()
-    .on("error", function (err) { console.log("Error : " + err.message); })
+    .bundle().on("error", function(err){console.log("Error : " + err.message);})
     .pipe(source('app.min.js'))
     .pipe(buffer())
     .pipe(uglify())
@@ -33,12 +31,8 @@ gulp.task('watch', function() {
   gulp.watch('./src/css/**/*.css', ['css']);
 });
 
-gulp.task('webserver', function() {
-  gulp.src('./app')
-    .pipe(webserver({
-      host: '0.0.0.0',
-      livereload: true
-    }));
+gulp.task('server', function() {
+    require('./server');
 });
 
-gulp.task('default', ['browserify', 'css', 'watch', 'webserver']);
+gulp.task('default', ['browserify', 'css', 'watch', 'server']);
