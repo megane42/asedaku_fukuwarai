@@ -1,0 +1,13 @@
+.bg {
+    background-color: #B5A642;
+    text-align: center;
+}
+
+.logo {
+    margin: 20px 10px;
+}
+
+.canvas-container {
+    display: block;
+    margin: 0 auto;
+}
