@@ -3,8 +3,8 @@ var app     = express();
 var http    = require('http').Server(app);
 var io      = require('socket.io')(http);
 
-// 各パーツの位置をサーバー側で一元管理
-var positions = [
+// ディープコピーが簡単なように JSON で取り扱う
+var defaultPositions = JSON.stringify([
     {
         target: 'base',
         params: { top: 0, left: 0, angle: 0, scaleX: 1, scaleY: 1 }
@@ -33,7 +33,10 @@ var positions = [
         target: 'brow_r',
         params: { top: 95, left: 123, angle: 0, scaleX: 1, scaleY: 1 }
     }
-];
+]);
+
+// 各パーツの位置をサーバー側で一元管理
+var positions = JSON.parse(defaultPositions);
 
 io.on('connection', function(socket){
     // 新規ユーザーのロードが完了したら
@@ -56,6 +59,16 @@ io.on('connection', function(socket){
         });
         // 動かした本人以外に最新のパーツ位置を送信
         socket.broadcast.emit('part_change', data);
+    });
+
+    // 誰かがリセットボタンを押したとき
+    socket.on('parts_reset', function(data){
+        // positions をデフォルトに戻す
+        positions = JSON.parse(defaultPositions);
+        // 全員にパーツ位置を送信
+        positions.forEach(function(item) {
+            io.emit('part_change', item);
+        });
     });
 });
 

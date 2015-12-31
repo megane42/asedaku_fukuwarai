@@ -4,7 +4,11 @@
 }
 
 .logo {
-    margin: 20px 10px;
+    margin: 10px 10px;
+}
+
+#reset_button {
+    margin: 10px 0px;
 }
 
 .canvas-container {

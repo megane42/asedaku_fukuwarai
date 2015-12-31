@@ -45,4 +45,8 @@ window.onload = function() {
         parts[data.target].setCoords();
         canvas.renderAll();
     });
+
+    document.getElementById('reset_button').onclick = function(){
+        socket.emit('parts_reset');
+    };
 };
