@@ -22,6 +22,7 @@ window.onload = function() {
 
         ['moving', 'scaling', 'rotating'].forEach(function(event) {
             img.on(event, function() {
+                img.bringToFront();
                 socket.emit('part_change', {
                     target: name,
                     params: {
@@ -43,6 +44,7 @@ window.onload = function() {
     socket.on('part_change', function(data){
         parts[data.target].set(data.params);
         parts[data.target].setCoords();
+        parts[data.target].bringToFront();
         canvas.renderAll();
     });
 
