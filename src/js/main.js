@@ -20,21 +20,23 @@ window.onload = function() {
         // let を使って変数をブロックスコープにしないと、処理前に次のループに進んで内容が上書きされてシマウマ
         let img = new fabric.Image(document.getElementById(name), opt);
 
-        ['moving', 'scaling', 'rotating'].forEach(function(event) {
-            img.on(event, function() {
-                img.bringToFront();
-                socket.emit('part_change', {
-                    target: name,
-                    params: {
-                        top    : img.getTop(),
-                        left   : img.getLeft(),
-                        angle  : img.getAngle(),
-                        scaleX : img.getScaleX(),
-                        scaleY : img.getScaleY()
-                    }
+        if (name != 'base') {
+            ['moving', 'scaling', 'rotating'].forEach(function(event) {
+                img.on(event, function() {
+                    img.bringToFront();
+                    socket.emit('part_change', {
+                        target: name,
+                        params: {
+                            top    : img.getTop(),
+                            left   : img.getLeft(),
+                            angle  : img.getAngle(),
+                            scaleX : img.getScaleX(),
+                            scaleY : img.getScaleY()
+                        }
+                    });
                 });
             });
-        });
+        }
 
         parts[name] = img;
         canvas.add(img);
